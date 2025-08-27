@@ -30,6 +30,9 @@
           data-yaxis="{ &quot;step&quot;: 1, &quot;substeps&quot;: 1, &quot;label&quot;: &quot;f(x)&quot;, &quot;labelprecision&quot;: 0, &quot;precision&quot;: 0 }" 
           data-item-path-uri="https://storage.googleapis.com/bank-dev-ampup/c/54393195-3146-417d-ba1f-eb80dc5a30e8/43894675-a8cb-4846-b594-29fcd130bc7f/c28e46e1-f438-4041-aaac-8ab9d07faf7a/items/item-2/"
           >
+          <qti-interaction-modules primary-configuration="modules/module_resolution.js">
+            <qti-interaction-module id="GraphingInteraction" primary-path="modules/GraphingInteraction.js"/>
+          </qti-interaction-modules>
           <qti-interaction-markup>
             <div class="graph-container" id="graph"></div> 
           </qti-interaction-markup>
