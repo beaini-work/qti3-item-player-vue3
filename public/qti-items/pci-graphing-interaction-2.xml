@@ -39,4 +39,4 @@
     </div>
   </qti-item-body>
   <qti-response-processing template="https://purl.imsglobal.org/spec/qti/v3p0/rptemplates/match_correct"/>
-</qti-assessment-item>
+  </qti-assessment-item>
