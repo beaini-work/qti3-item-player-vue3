@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<qti-assessment-item 
+  xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqtiasi_v3p0 https://purl.imsglobal.org/spec/qti/v3p0/schema/xsd/imsqti_asiv3p0_v1p0.xsd"
+  identifier="strategy-runtime-mcq-test"
+  title="Strategy Runtime MCQ Test"
+  adaptive="false"
+  time-dependent="false">
+  
+  <!-- Single string response to hold JSON response -->
+  <qti-response-declaration identifier="RESPONSE" base-type="string" cardinality="single">
+    <qti-correct-response>
+      <qti-value>{"type":"multiple","choices":["c1","c2","c4","c6"]}</qti-value>
+    </qti-correct-response>
+  </qti-response-declaration>
+  
+  <!-- Optional outcome for scoring -->
+  <qti-outcome-declaration identifier="SCORE" base-type="float" cardinality="single">
+    <qti-default-value>
+      <qti-value>0</qti-value>
+    </qti-default-value>
+  </qti-outcome-declaration>
+  
+  <qti-item-body>
+    <div class="qti-layout-row">
+      <div class="qti-layout-col12">
+        <!-- The PCI with strategy runtime -->
+        <qti-portable-custom-interaction
+          response-identifier="RESPONSE"
+          custom-interaction-type-identifier="strategy-runtime"
+          data-item-path-uri="qti-items/strategy-runtime/">
+          
+          <!-- Module configuration using primary-configuration -->
+          <qti-interaction-modules primary-configuration="/qti-items/strategy-runtime/modules/config-mcq-test.js">
+            <qti-interaction-module id="pci-runtime" primary-path="/qti-items/strategy-runtime/modules/pci-runtime.js"/>
+            <qti-interaction-module id="strategy-mcq" primary-path="/qti-items/strategy-runtime/modules/strategies/strategy-mcq.js"/>
+          </qti-interaction-modules>
+          
+          <!-- Markup container for the PCI -->
+          <qti-interaction-markup>
+            <div class="qti-interaction-markup"></div>
+          </qti-interaction-markup>
+          
+        </qti-portable-custom-interaction>
+      </div>
+    </div>
+  </qti-item-body>
+  
+  <!-- Optional: Add response processing if needed -->
+  <!-- For now, we'll use external scoring or no scoring -->
+</qti-assessment-item>
