@@ -111,7 +111,7 @@ export default {
       isLoading: false,
       isNavigating: false,
       completedItems: 0,
-      itemStatus: 'Not Started',
+      itemStatus: 'Ready',
       itemConfigs: [
         {
           identifier: "q2-choice-interaction-single-cardinality",
@@ -158,7 +158,7 @@ export default {
     },
     
     isPrevDisabled () {
-      return this.currentItem === 0 || !this.isTestStarted
+      return this.currentItem === 0
     },
     
     isNextDisabled () {
@@ -189,6 +189,16 @@ export default {
       
       // Load QTI items from files
       await this.loadItemsFromFiles()
+      
+      // Mark test as started
+      if (this.items.length > 0) {
+        this.isTestStarted = true
+        // If the player is already ready, load the first item
+        if (this.qti3Player) {
+          this.loadFirstItem()
+        }
+        // Otherwise, the handlePlayerReady will load it when ready
+      }
     },
 
     async loadItemsFromFiles () {
@@ -257,8 +267,6 @@ export default {
         this.handlePrevItem()
       } else if (event.key === 'ArrowRight' && !this.isNextDisabled) {
         this.handleNextItem()
-      } else if (event.key === 'Enter' && !this.isTestStarted) {
-        this.handleNextItem() // Start the test
       }
     },
 
@@ -270,12 +278,6 @@ export default {
       if (this.isNavigating || this.isNextDisabled) return
       
       console.log('[Controller][NextItem][' + this.currentItem + ']')
-      if (!this.isTestStarted) {
-        this.isTestStarted = true
-        this.itemStatus = 'In Progress'
-        this.loadFirstItem()
-        return
-      }
 
       this.isNavigating = true
       this.initiateNavigateNextItem()
@@ -450,6 +452,12 @@ export default {
      */
     handlePlayerReady (qti3Player) {
       this.qti3Player = qti3Player
+      
+      // If items are already loaded and test has started, load the first item
+      // Check if item hasn't been loaded yet to avoid double loading
+      if (this.isTestStarted && this.items.length > 0 && this.currentItem === 0 && !this.item) {
+        this.loadFirstItem()
+      }
     },
 
     /**
