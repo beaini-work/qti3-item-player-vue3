@@ -132,6 +132,11 @@ export default {
           identifier: "pci-graphing-interaction-2",
           guid: "0000-0000-0005-graphing",
           filePath: "qti-items/pci-graphing-interaction-2.xml"
+        },
+        {
+          identifier: "pci-graphing-interaction-2-fixed",
+          guid: "0000-0000-0006-graphing-fixed",
+          filePath: "qti-items/pci-graphing-interaction-2-fixed.xml"
         }
       ],
       items: [], // Will be populated with loaded XML content

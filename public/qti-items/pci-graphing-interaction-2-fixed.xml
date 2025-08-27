@@ -1,0 +1,44 @@
+<qti-assessment-item xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" adaptive="false" identifier="pci-graphing-interaction-2-fixed" time-dependent="false" title="PCI Graphing Interaction 2 (Fixed)" xml:lang="en-US" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqtiasi_v3p0 https://purl.imsglobal.org/spec/qti/v3p0/schema/xsd/imsqti_asiv3p0p1_v1p0.xsd">
+  <qti-response-declaration base-type="point" cardinality="multiple" identifier="RESPONSE">
+    <qti-correct-response>
+      <qti-value>-3 0</qti-value>
+      <qti-value>0 -2</qti-value>
+    </qti-correct-response>
+  </qti-response-declaration>
+  <qti-item-body>
+    <div class="qti-layout-row">
+      <div class="qti-layout-col12">
+        <p>Draw the graph of the inverse of <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo><mo>-</mo><mfrac bevelled="false"><mi>3</mi><mi>2</mi></mfrac><mo>⁢</mo><mi>x</mi><mo>-</mo><mi>3</mi></mrow></math> on the coordinate grid below.</p>
+        <qti-portable-custom-interaction response-identifier="RESPONSE"
+          module="GraphingInteraction"
+          custom-interaction-type-identifier="graphingInteraction"
+          data-graphtype="line"
+          data-planetype="default"
+          data-id="graph"
+          data-title=""
+          data-height="400"
+          data-width="400"
+          data-hlines="10"
+          data-vlines="10"
+          data-axislinewidth="3"
+          data-borderlinewidth="3"
+          data-steplinewidth="1"
+          data-maxpoints="2"
+          data-minpoints="2"
+          data-invalidresponsemessage="You must plot two points to answer this question."
+          data-xaxis="{ &quot;step&quot;: 1, &quot;substeps&quot;: 1, &quot;label&quot;: &quot;x&quot;, &quot;labelprecision&quot;: 0, &quot;precision&quot;: 0 }" 
+          data-yaxis="{ &quot;step&quot;: 1, &quot;substeps&quot;: 1, &quot;label&quot;: &quot;f(x)&quot;, &quot;labelprecision&quot;: 0, &quot;precision&quot;: 0 }" 
+          data-item-path-uri="https://storage.googleapis.com/bank-dev-ampup/c/54393195-3146-417d-ba1f-eb80dc5a30e8/43894675-a8cb-4846-b594-29fcd130bc7f/c28e46e1-f438-4041-aaac-8ab9d07faf7a/items/item-2/"
+          >
+          <qti-interaction-modules>
+            <qti-interaction-module id="GraphingInteraction" primary-path="modules/graphing.js" fallback-path="modules/graphing-fallback.js"/>
+          </qti-interaction-modules>
+          <qti-interaction-markup>
+            <div class="graph-container" id="graph"></div> 
+          </qti-interaction-markup>
+        </qti-portable-custom-interaction>
+      </div>
+    </div>
+  </qti-item-body>
+  <qti-response-processing template="https://purl.imsglobal.org/spec/qti/v3p0/rptemplates/match_correct"/>
+</qti-assessment-item>
