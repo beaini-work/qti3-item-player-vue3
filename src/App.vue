@@ -25,6 +25,7 @@ import Qti3Player from '@/components/Qti3Player.vue'
 import { PnpFactory } from '@/shared/helpers/PnpFactory'
 import { SessionControlFactory } from '@/shared/helpers/SessionControlFactory'
 import Swal from 'sweetalert2'
+import axios from 'axios'
 
 export default {
   name: 'App',
@@ -37,177 +38,29 @@ export default {
     return {
       isTestStarted: false,
       currentItem: 0,
-      items: [
+      itemConfigs: [
         {
-          "identifier": "sbac-200-183300-templated",
-          "guid": "0000-0000-0001sbac-templated",
-          "xml": `<!-- This example adapted from the Smarter Balanced IRP, copyright Smarter Balanced. -->
-      <qti-assessment-item xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-        xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0" 
-        xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqtiasi_v3p0 https://purl.imsglobal.org/spec/qti/v3p0/schema/xsd/imsqti_asiv3p0_v1p0.xsd" 
-        identifier="sbac-200-183300-templated" time-dependent="false" title="sbac-200-183300-templated" xml:lang="en">
-        <qti-response-declaration base-type="identifier" cardinality="multiple" identifier="RESPONSE">
-          <qti-correct-response>
-            <qti-value>D</qti-value>
-            <qti-value>E</qti-value>
-          </qti-correct-response>
-        </qti-response-declaration>
-        <qti-outcome-declaration base-type="float" cardinality="single" identifier="SCORE" normal-maximum="1.0" normal-minimum="0.0">
-          <qti-default-value>
-            <qti-value>0</qti-value>
-          </qti-default-value>
-        </qti-outcome-declaration>
-        <qti-outcome-declaration base-type="identifier" cardinality="single" identifier="FEEDBACK"/>
-        <qti-template-declaration identifier="a" cardinality="single" base-type="integer" math-variable="true" param-variable="true"/>
-        <qti-template-declaration identifier="b" cardinality="single" base-type="integer" math-variable="true" param-variable="true"/>
-        <qti-template-declaration identifier="c" cardinality="single" base-type="integer" math-variable="true" param-variable="true"/>
-        <qti-template-declaration identifier="d" cardinality="single" base-type="integer" math-variable="true" param-variable="true"/>
-        <qti-template-processing>
-          <qti-set-template-value identifier="a">
-            <qti-random-integer min="2" max="20"/>
-          </qti-set-template-value>
-          <qti-set-template-value identifier="b">
-            <qti-random-integer min="3" max="13"/>
-          </qti-set-template-value>
-          <qti-set-template-value identifier="c">
-            <qti-integer-divide>
-              <qti-variable identifier="a"/>
-              <qti-variable identifier="b"/>
-            </qti-integer-divide>
-          </qti-set-template-value>
-          <qti-set-template-value identifier="d">
-            <qti-integer-modulus>
-              <qti-variable identifier="a"/>
-              <qti-variable identifier="b"/>
-            </qti-integer-modulus>
-          </qti-set-template-value>
-          <qti-template-constraint>
-            <qti-and>
-              <qti-gt>
-                <qti-variable identifier="a"/>
-                <qti-variable identifier="b"/>
-              </qti-gt>
-              <qti-not>
-                <qti-equal tolerance-mode="exact">
-                  <qti-variable identifier="c"/>
-                  <qti-variable identifier="d"/>
-                </qti-equal>
-              </qti-not>
-              <qti-not>
-                <qti-equal tolerance-mode="exact">
-                  <qti-variable identifier="d"/>
-                  <qti-base-value base-type="integer">0</qti-base-value>
-                </qti-equal>
-              </qti-not>
-            </qti-and>
-          </qti-template-constraint>
-      </qti-template-processing>
-      <qti-item-body data-catalog-idref="item-183300-global">
-        <div class="qti-layout-row">
-          <div class="qti-layout-col8 qti-layout-offset2">
-            <div class="prompt">
-              <strong>sbac-200-183300 <em>with templating</em></strong>
-              <hr />
-              <p>
-                Select <strong>all</strong> values equivalent to <math xmlns="http://www.w3.org/1998/Math/MathML"><mo>-</mo><mfrac bevelled="false"><mi>a</mi><mi>b</mi></mfrac></math>.
-              </p>
-            </div>
-            <qti-choice-interaction class="sbac qti-labels-none" shuffle="true" max-choices="5" min-choices="1" response-identifier="RESPONSE">
-              <qti-simple-choice identifier="A">
-                <p>
-                  <math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac bevelled="false"><mrow><mo>-</mo><mi>a</mi></mrow><mrow><mo>-</mo><mi>b</mi></mrow></mfrac></math>
-                </p>
-              </qti-simple-choice>
-              <qti-simple-choice identifier="B">
-                <p>
-                  <math xmlns="http://www.w3.org/1998/Math/MathML"><mo>-</mo><mi>d</mi><mfrac bevelled="false"><mi>c</mi><mi>b</mi></mfrac></math>
-                </p>
-              </qti-simple-choice>
-              <qti-simple-choice identifier="C">
-                <p>
-                  <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi><mfrac bevelled="false"><mi>d</mi><mi>b</mi></mfrac></math>
-                </p>
-              </qti-simple-choice>
-              <qti-simple-choice identifier="D">
-                <p>
-                  <math xmlns="http://www.w3.org/1998/Math/MathML"><mo>-</mo><mfrac bevelled="false"><mrow><mo>-</mo><mi>a</mi></mrow><mrow><mo>-</mo><mi>b</mi></mrow></mfrac></math>
-                </p>
-              </qti-simple-choice>
-              <qti-simple-choice identifier="E">
-                <p>
-                  <math xmlns="http://www.w3.org/1998/Math/MathML"><mo>-</mo><mi>c</mi><mfrac bevelled="false"><mi>d</mi><mi>b</mi></mfrac></math>
-                </p>
-              </qti-simple-choice>
-            </qti-choice-interaction>
-          </div>
-       </div>
-      </qti-item-body>
-      <qti-response-processing>
-        <qti-response-condition>
-          <qti-response-if>
-            <qti-match>
-              <qti-variable identifier="RESPONSE"/>
-              <qti-correct identifier="RESPONSE"/>
-            </qti-match>
-            <qti-set-outcome-value identifier="SCORE">
-              <qti-base-value base-type="float">1</qti-base-value>
-            </qti-set-outcome-value>
-            <qti-set-outcome-value identifier="FEEDBACK">
-              <qti-base-value base-type="identifier">correct</qti-base-value>
-            </qti-set-outcome-value>
-          </qti-response-if>
-          <qti-response-else>
-            <qti-set-outcome-value identifier="SCORE">
-              <qti-base-value base-type="float">0</qti-base-value>
-            </qti-set-outcome-value>
-            <qti-set-outcome-value identifier="FEEDBACK">
-              <qti-base-value base-type="identifier">incorrect</qti-base-value>
-            </qti-set-outcome-value>
-          </qti-response-else>
-        </qti-response-condition>
-      </qti-response-processing>
-      <qti-modal-feedback outcome-identifier="FEEDBACK" identifier="correct" show-hide="show">
-        <qti-content-body>
-          <p>Well done!</p>
-        </qti-content-body>
-      </qti-modal-feedback>
-      <qti-modal-feedback outcome-identifier="FEEDBACK" identifier="incorrect" show-hide="show">
-        <qti-content-body>
-          <p>Sorry, your answer is not correct.</p>
-        </qti-content-body>
-      </qti-modal-feedback>
-      </qti-assessment-item>`
+          identifier: "q2-choice-interaction-single-cardinality",
+          guid: "0000-0000-0002-choice",
+          filePath: "qti-items/q2-choice-interaction-single-cardinality.xml"
         },
-      {
-        "identifier": "q2-choice-interaction-single-cardinality",
-        "guid": "0000-0000-0001",
-        "xml": `<qti-assessment-item 
-          xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-          xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqtiasi_v3p0 https://purl.imsglobal.org/spec/qti/v3p0/schema/xsd/imsqti_asiv3p0_v1p0.xsd" 
-          identifier="q2-choice-interaction-single-cardinality" title="Q2 - Choice Interaction - Single Cardinality" adaptive="false" time-dependent="false">
-          <qti-response-declaration identifier="RESPONSE" cardinality="single" base-type="identifier">
-            <qti-correct-response>
-              <qti-value>choice_c</qti-value>
-            </qti-correct-response>
-          </qti-response-declaration>
-          <qti-outcome-declaration identifier="SCORE" cardinality="single" base-type="float">
-            <qti-default-value>
-              <qti-value>0.0</qti-value>
-            </qti-default-value>
-          </qti-outcome-declaration>
-          <qti-item-body>
-            <qti-choice-interaction response-identifier="RESPONSE" class="" max-choices="0" shuffle="true" min-choices="0">
-              <qti-prompt>Select 0 to 1 SimpleChoice below and end the attempt by submitting the response.</qti-prompt>
-              <qti-simple-choice identifier="choice_a">choice_a</qti-simple-choice>
-              <qti-simple-choice identifier="choice_b">choice_b</qti-simple-choice>
-              <qti-simple-choice identifier="choice_c">choice_c</qti-simple-choice>
-            </qti-choice-interaction>
-          </qti-item-body>
-          <qti-response-processing template="https://purl.imsglobal.org/spec/qti/v3p0/rptemplates/match_correct.xml"/>
-          </qti-assessment-item>`
-      }
+        {
+          identifier: "measuringPh",
+          guid: "0000-0000-0003-measuring-ph",
+          filePath: "qti-items/measuringPh.xml"
+        },
+        {
+          identifier: "cito-pci-vanilla",
+          guid: "0000-0000-0004-cito-vanilla",
+          filePath: "qti-items/cito-pci-vanilla.xml"
+        },
+        {
+          identifier: "pci-graphing-interaction-2",
+          guid: "0000-0000-0005-graphing",
+          filePath: "qti-items/pci-graphing-interaction-2.xml"
+        }
       ],
-      maxItems: 2,
+      items: [], // Will be populated with loaded XML content
       containerClass: 'qti3-player-container-fluid',
       colorClass: 'qti3-player-color-default',
       containerPaddingClass: 'qti3-player-container-padding-2',
@@ -222,7 +75,7 @@ export default {
 
   methods: {
 
-    initialize () {
+    async initialize () {
       // Score when navigating
       this.performResponseProcessing = true
       // Load pnp
@@ -231,6 +84,42 @@ export default {
       this.sessionControl = new SessionControlFactory()
       this.sessionControl.setValidateResponses(true)
       this.sessionControl.setShowFeedback(false)
+      
+      // Load QTI items from files
+      await this.loadItemsFromFiles()
+    },
+
+    async loadItemsFromFiles () {
+      try {
+        this.items = []
+        
+        for (const config of this.itemConfigs) {
+          console.log(`Loading QTI item from: ${config.filePath}`)
+          
+          const response = await axios.get(config.filePath)
+          
+          const item = {
+            identifier: config.identifier,
+            guid: config.guid,
+            xml: response.data
+          }
+          
+          this.items.push(item)
+        }
+        
+        console.log(`Successfully loaded ${this.items.length} QTI items`)
+        
+      } catch (error) {
+        console.error('Error loading QTI items:', error)
+        
+        // Show error message to user
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to Load QTI Items',
+          text: `Could not load QTI items from files: ${error.message}`,
+          confirmButtonText: 'OK'
+        })
+      }
     },
 
     loadFirstItem () {
@@ -325,7 +214,14 @@ export default {
 
     loadItemAtIndex (index) {
       if (index === null) return
-      if ((index < 0) || (index > this.maxItems-1)) return
+      if (this.items.length === 0) {
+        console.warn('No items loaded yet')
+        return
+      }
+      if ((index < 0) || (index >= this.items.length)) {
+        console.warn(`Item index ${index} out of range (${this.items.length} items available)`)
+        return
+      }
 
       // Build a configuration
       const configuration = this.getConfiguration(this.items[index].guid)
@@ -425,8 +321,8 @@ export default {
 
   },
 
-  mounted () {
-    this.initialize()
+  async mounted () {
+    await this.initialize()
   }
 }
 </script>
