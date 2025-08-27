@@ -1,19 +1,23 @@
 /**
  * MCQ (Multiple Choice Question) Strategy
  * Supports both single and multiple selection modes
+ * 
+ * IMPORTANT: AMD Module Structure
+ * ================================
+ * In AMD/RequireJS modules, code after a return statement is unreachable.
+ * Always define your functions, constructors, and prototypes BEFORE the return statement.
+ * 
+ * Correct order:
+ * 1. Define constructor functions
+ * 2. Define prototypes
+ * 3. Return the module interface
+ * 
+ * DO NOT put function definitions after the return statement!
  */
 define([], function() {
   'use strict';
 
-  return {
-    /**
-     * Create a new MCQ strategy instance
-     */
-    create: function(ctx) {
-      return new McqStrategy(ctx);
-    }
-  };
-
+  // 1. Define the constructor FIRST (before any return statements)
   function McqStrategy(ctx) {
     this.dom = ctx.dom;
     this.config = ctx.config;
@@ -25,11 +29,14 @@ define([], function() {
     this.isMultiple = this.props.multi || false;
   }
 
+  // 2. Define the prototype methods (still before the return statement)
   McqStrategy.prototype = {
     /**
      * Mount the strategy and create the UI
      */
     mount: function() {
+      console.log('[MCQ Strategy] Mounting with props:', this.props);
+      console.log('[MCQ Strategy] DOM element:', this.dom);
       this.injectStyles();
       this.render();
       this.attachEventListeners();
@@ -59,6 +66,7 @@ define([], function() {
      * Render the MCQ interface
      */
     render: function() {
+      console.log('[MCQ Strategy] Rendering, DOM before:', this.dom.innerHTML);
       // Clear existing content
       this.dom.innerHTML = '';
       
@@ -314,4 +322,18 @@ define([], function() {
       this.selectedChoices.clear();
     }
   };
+
+  // 3. Return the module interface LAST (after all definitions)
+  // WARNING: Any code after this return statement will NOT be executed!
+  return {
+    /**
+     * Create a new MCQ strategy instance
+     * This factory function can now safely reference McqStrategy because it was defined above
+     */
+    create: function(ctx) {
+      return new McqStrategy(ctx);
+    }
+  };
+  
+  // ⚠️ NEVER PUT CODE HERE - IT WILL BE UNREACHABLE!
 });

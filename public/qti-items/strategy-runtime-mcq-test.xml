@@ -29,12 +29,14 @@
         <qti-portable-custom-interaction
           response-identifier="RESPONSE"
           custom-interaction-type-identifier="strategy-runtime"
-          data-item-path-uri="qti-items/strategy-runtime/">
+          module="strategy-runtime"
+          data-item-path-uri="/qti-items/strategy-runtime/"
+          data-config-href="/qti-items/strategy-runtime/modules/config-mcq-test.json">
           
           <!-- Module configuration using primary-configuration -->
-          <qti-interaction-modules primary-configuration="/qti-items/strategy-runtime/modules/config-mcq-test.js">
-            <qti-interaction-module id="pci-runtime" primary-path="/qti-items/strategy-runtime/modules/pci-runtime.js"/>
-            <qti-interaction-module id="strategy-mcq" primary-path="/qti-items/strategy-runtime/modules/strategies/strategy-mcq.js"/>
+          <qti-interaction-modules primary-configuration="modules/module_resolution.json">
+            <qti-interaction-module id="strategy-runtime" primary-path="modules/pci-runtime.js"/>
+            <qti-interaction-module id="strategy-mcq" primary-path="modules/strategies/strategy-mcq.js"/>
           </qti-interaction-modules>
           
           <!-- Markup container for the PCI -->

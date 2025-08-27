@@ -1,8 +1,15 @@
 /**
  * Configuration module for MCQ strategy test
  * This demonstrates the configuration module approach (Option 1 from the design)
+ * 
+ * AMD MODULE NOTE:
+ * This module immediately returns a configuration object.
+ * The return statement must be the last thing in the module function.
+ * Any code after the return will not execute.
  */
 define([], function() {
+  // Return configuration object directly
+  // No code should come after this return statement
   return {
     version: "1.0",
     strategy: "mcq",

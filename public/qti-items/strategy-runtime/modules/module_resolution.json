@@ -1,0 +1,8 @@
+{
+  "waitSeconds": 60,
+  "paths": {
+    "strategy-runtime": "pci-runtime",
+    "strategy-mcq": "strategies/strategy-mcq",
+    "config-mcq-test": "config-mcq-test"
+  }
+}

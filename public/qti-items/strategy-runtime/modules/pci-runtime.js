@@ -1,6 +1,15 @@
 /**
  * PCI Strategy Runtime Dispatcher
  * This is the main PCI module that reads JSON configuration and dynamically loads strategies
+ * 
+ * MODULE STRUCTURE PATTERN:
+ * ========================
+ * This AMD module follows the pattern:
+ * 1. Define all functions and objects
+ * 2. Initialize/register components
+ * 3. Return the module exports
+ * 
+ * CRITICAL: Never put executable code after a return statement in AMD modules!
  */
 define(['qtiCustomInteractionContext'], function(qtiCustomInteractionContext) {
   'use strict';
@@ -8,6 +17,7 @@ define(['qtiCustomInteractionContext'], function(qtiCustomInteractionContext) {
   // Strategy cache to avoid reloading
   const loadedStrategies = {};
 
+  // Define the main PCI object
   const PciStrategyRuntime = {
     typeIdentifier: 'strategy-runtime',
     
@@ -15,6 +25,7 @@ define(['qtiCustomInteractionContext'], function(qtiCustomInteractionContext) {
      * Register the PCI with the interaction context
      */
     initialize: function() {
+      console.log('[PCI Strategy Runtime] Registering with context');
       qtiCustomInteractionContext.register(this);
     },
 
@@ -22,10 +33,12 @@ define(['qtiCustomInteractionContext'], function(qtiCustomInteractionContext) {
      * Get an instance of this PCI
      */
     getInstance: function(dom, config, state) {
+      console.log('[PCI Strategy Runtime] getInstance called', {dom, config, state});
       const instance = new PciStrategyRuntimeInstance(dom, config, state);
       
       // Initialize and notify when ready
       instance.initialize().then(() => {
+        console.log('[PCI Strategy Runtime] Initialization complete');
         config.onready(instance, state);
       }).catch((err) => {
         console.error('[PCI Strategy Runtime] Initialization failed:', err);
@@ -39,6 +52,7 @@ define(['qtiCustomInteractionContext'], function(qtiCustomInteractionContext) {
 
   /**
    * PCI Strategy Runtime Instance
+   * Constructor function defined BEFORE being referenced in getInstance above
    */
   function PciStrategyRuntimeInstance(dom, config, state) {
     this.typeIdentifier = 'strategy-runtime';
@@ -67,6 +81,7 @@ define(['qtiCustomInteractionContext'], function(qtiCustomInteractionContext) {
 
         // Load the strategy module
         const strategyModule = await this.loadStrategy(this.spec.strategy);
+        console.log('[PCI Strategy Runtime] Strategy module loaded:', strategyModule);
         
         // Create strategy instance
         const ctx = {
@@ -76,11 +91,16 @@ define(['qtiCustomInteractionContext'], function(qtiCustomInteractionContext) {
           state: this.state
         };
         
+        console.log('[PCI Strategy Runtime] Creating strategy instance with context:', ctx);
         this.strategyInstance = strategyModule.create(ctx);
+        console.log('[PCI Strategy Runtime] Strategy instance created:', this.strategyInstance);
         
         // Mount the strategy
         if (this.strategyInstance && this.strategyInstance.mount) {
+          console.log('[PCI Strategy Runtime] Calling mount on strategy');
           this.strategyInstance.mount();
+        } else {
+          console.log('[PCI Strategy Runtime] ERROR: Strategy has no mount method!');
         }
         
         // If there's a state to restore, do it
@@ -99,6 +119,8 @@ define(['qtiCustomInteractionContext'], function(qtiCustomInteractionContext) {
      */
     loadConfiguration: async function() {
       let config = null;
+      console.log('[PCI Strategy Runtime] Loading configuration, config object:', this.config);
+      console.log('[PCI Strategy Runtime] Config properties:', this.config.properties);
 
       // 1. Try primary configuration module (if provided)
       if (this.config.primaryConfiguration) {
@@ -107,8 +129,10 @@ define(['qtiCustomInteractionContext'], function(qtiCustomInteractionContext) {
         return config;
       }
 
-      // 2. Try external JSON file (if data-config-href is present)
-      const configHref = this.dom.getAttribute('data-config-href');
+      // 2. Try external JSON file via properties (data-config-href on PCI element)
+      // The property name will be 'configHref' (camelCase conversion from data-config-href)
+      const configHref = this.config && this.config.properties && this.config.properties.configHref;
+      console.log('[PCI Strategy Runtime] Looking for configHref:', configHref);
       if (configHref && typeof fetch !== 'undefined') {
         try {
           const response = await fetch(configHref);
@@ -122,7 +146,7 @@ define(['qtiCustomInteractionContext'], function(qtiCustomInteractionContext) {
         }
       }
 
-      // 3. Try inline JSON (last resort)
+      // 3. Try inline JSON (last resort) — if strategy runtime markup embeds it
       const inlineScript = this.dom.querySelector('script[type="application/json"]');
       if (inlineScript) {
         try {
@@ -252,8 +276,12 @@ define(['qtiCustomInteractionContext'], function(qtiCustomInteractionContext) {
     }
   };
 
-  // Initialize and register the PCI
+  // Initialize and register the PCI (before returning)
   PciStrategyRuntime.initialize();
 
+  // Return the module - this MUST be the last executable statement
+  // Anything after this return will not be executed
   return PciStrategyRuntime;
+  
+  // ⚠️ DO NOT ADD CODE HERE - IT WILL NEVER RUN!
 });

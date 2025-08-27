@@ -495,7 +495,11 @@ export default {
       iframe.id = this.uniqueId
       iframe.setAttribute('scrolling', 'no')
       iframe.style.border = 'none'
-      iframe.style.width = `${width}px`
+      // Give the iframe a sensible initial height so content is visible
+      // before the PCI posts its ready/resize events.
+      iframe.style.height = '300px'
+      // Use responsive width initially; parent will resize after ready
+      iframe.style.width = '100%'
       // Bind before set src attribute!
       iframe.addEventListener('load', this.loadIframeHandler)
       iframe.src = `${this.renderer}?identifier=${this.responseIdentifier}&uniqueId=${this.uniqueId}`
@@ -666,7 +670,10 @@ export default {
     pciResizeIframe (height, width) {
       if (this.pciIframe === null) return
       this.pciIframe.style.height = `${height}px`
-      this.pciIframe.style.width = `${width}px`
+      const targetWidth = (typeof width === 'number' && width > 0)
+        ? `${width}px`
+        : '100%'
+      this.pciIframe.style.width = targetWidth
     },
 
     /**
