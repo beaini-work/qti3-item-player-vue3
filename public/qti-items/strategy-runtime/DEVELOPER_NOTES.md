@@ -1,5 +1,52 @@
 # Developer Notes - PCI Strategy Runtime
 
+## Framework Independence
+
+The PCI Strategy Runtime is designed to be framework-agnostic. It can work with any rendering framework (QTI players, custom test platforms, etc.) through multiple integration patterns.
+
+### Resize Handling (Multiple Approaches)
+
+The runtime provides several ways to handle content resizing, from most to least preferred:
+
+1. **Standard DOM Sizing** (Primary)
+   - Sets `height` and `minHeight` on the DOM element
+   - Any MutationObserver or ResizeObserver will detect this
+   - Works with any framework that observes DOM changes
+
+2. **Custom Events** (Secondary)
+   - Dispatches `pci-content-resize` events with dimension details
+   - Frameworks can listen for these standard DOM events
+   - Completely decoupled from any specific framework
+
+3. **Callback Pattern** (Flexible)
+   - Frameworks can inject `onContentResize` callback in config
+   - Allows custom resize handling per framework
+   - Framework maintains full control
+
+4. **PostMessage Fallback** (Compatibility)
+   - Only used if in an iframe context
+   - Generic message format that frameworks can adapt
+   - Not tied to any specific message structure
+
+### Integration Examples
+
+```javascript
+// Framework can provide custom resize handler
+const config = {
+  onready: (instance, state) => { /* ... */ },
+  onContentResize: (width, height) => {
+    // Framework-specific resize handling
+    myFramework.resizeContainer(width, height);
+  }
+};
+
+// Or listen for events
+element.addEventListener('pci-content-resize', (e) => {
+  const { width, height } = e.detail;
+  // Handle resize
+});
+```
+
 ## Critical AMD/RequireJS Module Pattern
 
 ### The Problem We Solved
