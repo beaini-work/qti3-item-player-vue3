@@ -140,6 +140,9 @@ define(['qtiCustomInteractionContext'], function(qtiCustomInteractionContext) {
           this.strategyInstance.setState(this.state);
         }
         
+        // Listen for resize events from the strategy
+        this.setupResizeListener();
+        
       } catch (err) {
         console.error('[PCI Strategy Runtime] Failed to initialize:', err);
         throw err;
@@ -248,6 +251,37 @@ define(['qtiCustomInteractionContext'], function(qtiCustomInteractionContext) {
       }
       return null;
     },
+    
+    /**
+     * Get the score for the current response
+     * Returns: number between 0 and 1 (or max score if configured)
+     */
+    getScore: function() {
+      if (this.strategyInstance && this.strategyInstance.checkAnswer) {
+        const isCorrect = this.strategyInstance.checkAnswer();
+        const maxScore = this.spec?.scoring?.maxScore || 1;
+        return isCorrect ? maxScore : 0;
+      }
+      return 0;
+    },
+    
+    /**
+     * Process the response for QTI
+     * Returns: object with QTI response data
+     */
+    processResponse: function() {
+      const response = this.getResponse();
+      const score = this.getScore();
+      const isValid = this.checkValidity();
+      
+      return {
+        response: response,
+        score: score,
+        valid: isValid,
+        complete: response !== null && response !== '{}',
+        state: this.getState()
+      };
+    },
 
     /**
      * Get the interaction state
@@ -296,6 +330,39 @@ define(['qtiCustomInteractionContext'], function(qtiCustomInteractionContext) {
       if (this.strategyInstance && this.strategyInstance.setRenderingProperties) {
         this.strategyInstance.setRenderingProperties(properties);
       }
+    },
+    
+    /**
+     * Setup listener for resize events from strategy
+     * This ensures feedback doesn't get cut off
+     */
+    setupResizeListener: function() {
+      const self = this;
+      
+      // Listen for strategy-specific resize events
+      this.dom.addEventListener('strategy-content-resize', function(e) {
+        console.log('[PCI Strategy Runtime] Strategy requested resize:', e.detail);
+        self.notifyContentResize();
+      });
+      
+      // Also watch for attribute changes that indicate resize needed
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'attributes' && 
+              mutation.attributeName === 'data-feedback-visible') {
+            console.log('[PCI Strategy Runtime] Feedback visibility changed, resizing');
+            self.notifyContentResize();
+          }
+        });
+      });
+      
+      observer.observe(this.dom, { 
+        attributes: true,
+        attributeFilter: ['data-feedback-visible']
+      });
+      
+      // Store observer for cleanup
+      this.resizeObserver = observer;
     },
     
     /**
@@ -369,6 +436,12 @@ define(['qtiCustomInteractionContext'], function(qtiCustomInteractionContext) {
      * Clean up when the interaction is destroyed
      */
     oncompleted: function() {
+      // Clean up resize observer
+      if (this.resizeObserver) {
+        this.resizeObserver.disconnect();
+      }
+      
+      // Clean up strategy
       if (this.strategyInstance && this.strategyInstance.dispose) {
         this.strategyInstance.dispose();
       }

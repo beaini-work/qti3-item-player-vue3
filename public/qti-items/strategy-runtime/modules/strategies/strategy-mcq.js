@@ -99,6 +99,27 @@ define([], function() {
       });
       
       container.appendChild(choiceList);
+      // Add Check Answer button
+      const buttonContainer = document.createElement('div');
+      buttonContainer.className = 'qti-button-container';
+      
+      const checkButton = document.createElement('button');
+      checkButton.className = 'qti-check-button';
+      checkButton.textContent = 'Check Answer';
+      checkButton.type = 'button';
+      
+      const self = this;
+      checkButton.addEventListener('click', function() {
+        self.showFeedback();
+        // Notify parent about the check action
+        if (self.config && self.config.oncheck) {
+          self.config.oncheck(self.checkAnswer());
+        }
+      });
+      
+      buttonContainer.appendChild(checkButton);
+      container.appendChild(buttonContainer);
+      
       this.dom.appendChild(container);
       
       // Store reference to choice list
@@ -192,6 +213,9 @@ define([], function() {
         }
       }
       
+      // Clear any previous feedback when user changes answer
+      this.clearFeedback();
+      
       // Fire interaction changed event
       this.fireInteractionChanged();
     },
@@ -281,6 +305,125 @@ define([], function() {
       // Valid if at least one choice is selected
       return this.selectedChoices.size > 0;
     },
+    
+    /**
+     * Check if the current answer is correct
+     * Returns: boolean
+     */
+    checkAnswer: function() {
+      const correct = this.props.correct || [];
+      const selected = Array.from(this.selectedChoices);
+      
+      // For single choice
+      if (!this.isMultiple) {
+        return selected.length === 1 && correct.includes(selected[0]);
+      }
+      
+      // For multiple choice - must match exactly
+      if (selected.length !== correct.length) {
+        return false;
+      }
+      
+      return selected.every(choice => correct.includes(choice)) &&
+             correct.every(choice => selected.includes(choice));
+    },
+    
+    /**
+     * Show feedback for the current answer
+     * Returns: boolean (true if correct)
+     */
+    showFeedback: function() {
+      const isCorrect = this.checkAnswer();
+      const feedbackDiv = this.dom.querySelector('.qti-feedback') || this.createFeedbackElement();
+      
+      if (isCorrect) {
+        feedbackDiv.className = 'qti-feedback qti-feedback-correct';
+        feedbackDiv.innerHTML = '<div class="feedback-icon">✓</div><div class="feedback-text">Correct! Well done.</div>';
+      } else {
+        const selected = Array.from(this.selectedChoices);
+        const correct = this.props.correct || [];
+        
+        let feedbackText = 'Not quite right. ';
+        if (selected.length === 0) {
+          feedbackText += 'Please select an answer.';
+        } else if (!this.isMultiple) {
+          const correctChoice = this.props.choices.find(c => c.id === correct[0]);
+          feedbackText += 'The correct answer is: ' + (correctChoice ? correctChoice.text : correct[0]) + '.';
+        } else {
+          const correctTexts = correct.map(id => {
+            const choice = this.props.choices.find(c => c.id === id);
+            return choice ? choice.text : id;
+          });
+          feedbackText += 'The correct answers are: ' + correctTexts.join(', ') + '.';
+        }
+        
+        feedbackDiv.className = 'qti-feedback qti-feedback-incorrect';
+        feedbackDiv.innerHTML = '<div class="feedback-icon">✗</div><div class="feedback-text">' + feedbackText + '</div>';
+      }
+      
+      // Highlight correct and incorrect choices
+      this.highlightChoices();
+      
+      // Trigger resize notification after feedback is displayed
+      this.notifyResize();
+      
+      return isCorrect;
+    },
+    
+    /**
+     * Create feedback element if it doesn't exist
+     */
+    createFeedbackElement: function() {
+      const feedbackDiv = document.createElement('div');
+      feedbackDiv.className = 'qti-feedback';
+      const container = this.dom.querySelector('.qti-choice-interaction');
+      container.appendChild(feedbackDiv);
+      return feedbackDiv;
+    },
+    
+    /**
+     * Clear feedback display
+     */
+    clearFeedback: function() {
+      const feedbackDiv = this.dom.querySelector('.qti-feedback');
+      if (feedbackDiv) {
+        feedbackDiv.className = 'qti-feedback';
+        feedbackDiv.innerHTML = '';
+        
+        // Trigger resize after clearing feedback
+        this.notifyResize();
+      }
+      
+      // Remove choice highlighting
+      const choices = this.dom.querySelectorAll('.qti-simple-choice');
+      choices.forEach(choice => {
+        choice.classList.remove('choice-correct', 'choice-incorrect', 'choice-missed');
+      });
+    },
+    
+    /**
+     * Highlight correct and incorrect choices
+     */
+    highlightChoices: function() {
+      const correct = this.props.correct || [];
+      const selected = Array.from(this.selectedChoices);
+      
+      const choices = this.dom.querySelectorAll('.qti-simple-choice');
+      choices.forEach(choice => {
+        const input = choice.querySelector('input');
+        const choiceId = input.value;
+        
+        if (correct.includes(choiceId)) {
+          if (selected.includes(choiceId)) {
+            choice.classList.add('choice-correct');
+          } else {
+            choice.classList.add('choice-missed');
+          }
+        } else if (selected.includes(choiceId)) {
+          choice.classList.add('choice-incorrect');
+        }
+      });
+    },
 
     /**
      * Get custom validity message
@@ -290,6 +433,36 @@ define([], function() {
         return 'Please select at least one option';
       }
       return '';
+    },
+    
+    /**
+     * Notify parent about content resize
+     * Framework-agnostic approach using multiple methods
+     */
+    notifyResize: function() {
+      // Small delay to ensure DOM updates are complete
+      setTimeout(() => {
+        // Method 1: Dispatch custom event (framework-agnostic)
+        const container = this.dom.querySelector('.qti-choice-interaction');
+        if (container) {
+          const height = container.scrollHeight;
+          const event = new CustomEvent('strategy-content-resize', {
+            bubbles: true,
+            detail: { height: height + 40 } // Add buffer for margins
+          });
+          this.dom.dispatchEvent(event);
+        }
+        
+        // Method 2: Trigger DOM mutation by changing a data attribute
+        // This will trigger any MutationObserver watching the element
+        this.dom.setAttribute('data-feedback-visible', 
+          this.dom.querySelector('.qti-feedback:not(:empty)') ? 'true' : 'false');
+        
+        // Method 3: If there's a resize callback from the parent
+        if (this.config && typeof this.config.onResize === 'function') {
+          this.config.onResize(this.dom.scrollHeight);
+        }
+      }, 50);
     },
 
     /**
