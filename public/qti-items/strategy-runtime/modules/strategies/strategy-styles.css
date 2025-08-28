@@ -20,20 +20,34 @@
 .qti-simple-choice {
   border: 1px solid #ddd;
   border-radius: 6px;
-  padding: 12px 15px;
+  padding: 0;
   background-color: #fff;
   transition: all 0.2s ease;
   cursor: pointer;
+  user-select: none;
+  position: relative;
 }
 
 .qti-simple-choice:hover {
   background-color: #f7f7f7;
   border-color: #999;
+  transform: translateX(2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.qti-simple-choice:active {
+  transform: translateX(1px) scale(0.99);
 }
 
 .qti-simple-choice:has(input:checked) {
   background-color: #e3f2fd;
   border-color: #2196f3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+.qti-simple-choice:has(input:checked):hover {
+  background-color: #bbdefb;
+  transform: translateX(2px);
 }
 
 .qti-choice-label {
@@ -41,6 +55,8 @@
   align-items: center;
   cursor: pointer;
   width: 100%;
+  padding: 12px 15px;
+  margin: 0;
 }
 
 .qti-choice-input {

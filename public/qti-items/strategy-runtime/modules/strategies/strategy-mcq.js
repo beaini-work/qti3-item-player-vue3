@@ -160,6 +160,17 @@ define([], function() {
       label.appendChild(content);
       wrapper.appendChild(label);
       
+      // Make the entire choice wrapper clickable
+      wrapper.style.cursor = 'pointer';
+      wrapper.addEventListener('click', function(e) {
+        // If the click wasn't directly on the input or label, trigger the input
+        if (!input.contains(e.target) && e.target !== input) {
+          e.preventDefault();
+          e.stopPropagation();
+          input.click();
+        }
+      });
+      
       return wrapper;
     },
 
